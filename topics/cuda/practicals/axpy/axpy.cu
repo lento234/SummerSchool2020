@@ -6,13 +6,24 @@
 
 // TODO CUDA kernel implementing axpy
 //      y = y + alpha*x
-//void axpy(int n, double alpha, const double* x, double* y)
+template<typename T>
+__global__
+void axpy(int n, T alpha, const T* x, T* y)
+{
+    auto i = threadIdx.x + blockIdx.x * blockDim.x;
+    if (i < n)
+    {
+        y[i] = y[i] + alpha * x[i];
+    }
+}
 
 int main(int argc, char** argv) {
     size_t pow = read_arg(argc, argv, 1, 16);
     size_t n = 1 << pow;
     auto size_in_bytes = n * sizeof(double);
 
+    size_t block_size = 64; //512;
+    size_t num_blocks = (n + (block_size + 1)) / block_size; 
     cuInit(0);
 
     std::cout << "memcopy and daxpy test of size " << n << "\n";
@@ -38,6 +49,7 @@ int main(int argc, char** argv) {
 
     start = get_time();
     // TODO launch kernel (alpha=2.0)
+    axpy<double><<<num_blocks, block_size>>>(n, 2.0, x_device, y_device);
 
     cudaDeviceSynchronize();
     auto time_axpy = get_time() - start;
