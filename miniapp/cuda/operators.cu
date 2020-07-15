@@ -225,24 +225,24 @@ void diffusion(data::Field const& U, data::Field &S)
     dim3 grid_dim(calculate_grid_dim(nx, block_dim.x), calculate_grid_dim(ny, block_dim.y));
     kernels::stencil_interior<<<grid_dim, block_dim>>>(S.device_data(), U.device_data());
 
-    cudaDeviceSynchronize();    // TODO: remove after debugging
-    cuda_check_last_kernel("internal kernel"); // TODO: remove after debugging
+    // cudaDeviceSynchronize();    // TODO: remove after debugging
+    //cuda_check_last_kernel("internal kernel"); // TODO: remove after debugging
 
     // apply stencil at east-west boundary
     auto bnd_grid_dim_y = calculate_grid_dim(ny, 64);
     kernels::stencil_east_west<<<bnd_grid_dim_y, 64>>>(S.device_data(), U.device_data());
-    cudaDeviceSynchronize();    // TODO: remove after debugging
-    cuda_check_last_kernel("east-west kernel"); // TODO: remove after debugging
+    // cudaDeviceSynchronize();    // TODO: remove after debugging
+    //cuda_check_last_kernel("east-west kernel"); // TODO: remove after debugging
 
     // apply stencil at north-south boundary
     auto bnd_grid_dim_x = calculate_grid_dim(nx, 64);
     kernels::stencil_north_south<<<bnd_grid_dim_x, 64>>>(S.device_data(), U.device_data());
-    cudaDeviceSynchronize();    // TODO: remove after debugging
-    cuda_check_last_kernel("north-south kernel");   // TODO: remove after debugging
+    // cudaDeviceSynchronize();    // TODO: remove after debugging
+    //cuda_check_last_kernel("north-south kernel");   // TODO: remove after debugging
 
     // apply stencil at corners
     kernels::stencil_corners<<<1, 1>>>(S.device_data(), U.device_data());
-    cudaDeviceSynchronize();    // TODO: remove after debugging
-    cuda_check_last_kernel("corner kernel");    // TODO: remove after debugging
+    //cudaDeviceSynchronize();    // TODO: remove after debugging
+    //cuda_check_last_kernel("corner kernel");    // TODO: remove after debugging
 }
 } // namespace operators
