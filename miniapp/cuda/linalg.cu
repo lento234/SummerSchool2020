@@ -15,7 +15,6 @@ namespace linalg {
 
 namespace kernels {
 
-// TODO implement the missing linalg kernels
 __global__
 void add_scaled_diff(
         double *y,
@@ -122,9 +121,6 @@ void cg_init(int nx, int ny)
 //  blas level 1 reductions
 ////////////////////////////////////////////////////////////////////////////////
 
-// TODO implement the dot product with cublas
-// HINT : use cublas_handle() to get the cublas handle
-
 // computes the inner product of x and y
 // x and y are vectors
 double ss_dot(Field const& x, Field const& y)
@@ -136,9 +132,6 @@ double ss_dot(Field const& x, Field const& y)
 
     return result;
 }
-
-// TODO : implement the dot product with cublas
-// HINT : use cublas_handle() to get the cublas handle
 
 // computes the 2-norm of x
 // x is a vector
@@ -179,13 +172,6 @@ void ss_copy(Field& y, Field const& x)
     kernels::copy<<<grid_dim, block_dim>>>
         (y.device_data(), x.device_data(), n);
 }
-
-// TODO : implement the wrappers for
-// ss_fill
-// ss_axpy
-// ss_scaled_diff
-// ss_scale
-// ss_lcomb
 
 // sets x := value
 // x is a vector
