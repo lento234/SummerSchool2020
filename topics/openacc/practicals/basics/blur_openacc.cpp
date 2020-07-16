@@ -30,12 +30,12 @@ void blur_twice_host(double *in , double *out , int n, int nsteps)
 {
     double *buffer = malloc_host<double>(n);
     for (auto istep = 0; istep < nsteps; ++istep) {
-        #pragma omp parallel for
+        #pragma omp parallel loop copyin(in[0:n]) copyout(buffer[1:n-2])
         for (auto i = 1; i < n-1; ++i) {
             buffer[i] = blur(i, in);
         }
 
-        #pragma omp parallel for
+        #pragma omp parallel loop copyin(buffer[0:n]) copyout(out[2:n-4])
         for(auto i = 2; i < n-2; ++i) {
             out[i] = blur(i, buffer);
         }
@@ -71,23 +71,22 @@ void blur_twice_gpu_nocopies(double *in , double *out , int n, int nsteps)
 {
     double *buffer = malloc_host<double>(n);
 
-    // TODO: Specify the data to be copied to and from the GPU
+    #pragma acc data copyin(in[:n]) copy(out[:n]) create(buffer[1:n-2])
     {
         for (int istep = 0; istep < nsteps; ++istep) {
             int i;
 
-            // TODO: Offload the following loop to the GPU
+            #pragma acc parallel loop present(in[:n], buffer[1:n-2])
             for (i = 1; i < n-1; ++i) {
                 buffer[i] = blur(i, in);
             }
 
-            // TODO: Offload the following loop to the GPU
+            #pragma acc parallel loop present(out[:n], buffer[1:n-2])
             for (i = 2; i < n-2; ++i) {
                 out[i] = blur(i, buffer);
             }
 
-            // TODO: Offload the following loop to the GPU
-            //       Is it possible to just swap the pointers here?
+            #pragma acc parallel loop present(out[:n], in[:n])
             for (i = 0; i < n; ++i) {
                 in[i] = out[i];
             }
